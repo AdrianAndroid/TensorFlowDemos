@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit
 import org.tensorflow.lite.examples.audio.fragments.AudioClassificationListener
 import org.tensorflow.lite.support.audio.TensorAudio
 import org.tensorflow.lite.task.audio.classifier.AudioClassifier
+import org.tensorflow.lite.task.audio.classifier.Classifications
 import org.tensorflow.lite.task.core.BaseOptions
 
 class AudioClassificationHelper(
@@ -135,5 +136,6 @@ class AudioClassificationHelper(
         const val DEFAULT_OVERLAP_VALUE = 0.5f
         const val YAMNET_MODEL = "yamnet.tflite"
         const val SPEECH_COMMAND_MODEL = "speech.tflite"
+        const val MODEL_V8_1 = "model_v8.1.tflite"
     }
 }

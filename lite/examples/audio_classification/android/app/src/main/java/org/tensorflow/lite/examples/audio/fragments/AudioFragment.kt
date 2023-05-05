@@ -17,11 +17,11 @@
 package org.tensorflow.lite.examples.audio.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
-import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -46,10 +46,12 @@ class AudioFragment : Fragment() {
     private val audioClassificationListener = object : AudioClassificationListener {
         override fun onResult(results: List<Category>, inferenceTime: Long) {
             requireActivity().runOnUiThread {
+                for (result in results) {
+                    test(result.label)
+                }
                 adapter.categoryList = results
                 adapter.notifyDataSetChanged()
-                fragmentAudioBinding.bottomSheetLayout.inferenceTimeVal.text =
-                    String.format("%d ms", inferenceTime)
+                fragmentAudioBinding.bottomSheetLayout.inferenceTimeVal.text = String.format("%d ms", inferenceTime)
             }
         }
 
@@ -59,6 +61,31 @@ class AudioFragment : Fragment() {
                 adapter.categoryList = emptyList()
                 adapter.notifyDataSetChanged()
             }
+        }
+    }
+
+    companion object {
+        private val list = listOf<String>(
+            "Walk, footsteps",
+            "Chuckle, chortle",
+            "Baby laughter",
+            "Belly laugh",
+            "Cough",
+            "Snoring",
+            "Sigh",
+            "Baby cry, infant cry",
+            "Silence",
+            "Animal",
+            "Speech",
+            "Laughter",
+            "Breathing",
+            "Giggle",
+            "Fart",
+            "Silence"
+        )
+
+        fun test(v0_3: String) {
+            Log.i("AudioFragment", "$v0_3 ---> contains=${list.contains(v0_3)}")
         }
     }
 
@@ -84,23 +111,25 @@ class AudioFragment : Fragment() {
         // the `download_model.gradle` file within this sample. You can also create your own
         // audio model by following the documentation here:
         // https://www.tensorflow.org/lite/models/modify/model_maker/speech_recognition
-        fragmentAudioBinding.bottomSheetLayout.modelSelector.setOnCheckedChangeListener(
-            object : RadioGroup.OnCheckedChangeListener {
-            override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
-                when (checkedId) {
-                    R.id.yamnet -> {
-                        audioHelper.stopAudioClassification()
-                        audioHelper.currentModel = AudioClassificationHelper.YAMNET_MODEL
-                        audioHelper.initClassifier()
-                    }
-                    R.id.speech_command -> {
-                        audioHelper.stopAudioClassification()
-                        audioHelper.currentModel = AudioClassificationHelper.SPEECH_COMMAND_MODEL
-                        audioHelper.initClassifier()
-                    }
+        fragmentAudioBinding.bottomSheetLayout.modelSelector.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.yamnet -> {
+                    audioHelper.stopAudioClassification()
+                    audioHelper.currentModel = AudioClassificationHelper.YAMNET_MODEL
+                    audioHelper.initClassifier()
+                }
+                R.id.speech_command -> {
+                    audioHelper.stopAudioClassification()
+                    audioHelper.currentModel = AudioClassificationHelper.SPEECH_COMMAND_MODEL
+                    audioHelper.initClassifier()
+                }
+                R.id.model_v81 -> {
+                    audioHelper.stopAudioClassification()
+                    audioHelper.currentModel = AudioClassificationHelper.MODEL_V8_1
+                    audioHelper.initClassifier()
                 }
             }
-        })
+        }
 
         // Allow the user to change the amount of overlap used in classification. More overlap
         // can lead to more accurate resolves in classification.
@@ -171,9 +200,7 @@ class AudioFragment : Fragment() {
             if (audioHelper.numThreads > 1) {
                 audioHelper.stopAudioClassification()
                 audioHelper.numThreads--
-                fragmentAudioBinding.bottomSheetLayout.threadsValue.text = audioHelper
-                    .numThreads
-                    .toString()
+                fragmentAudioBinding.bottomSheetLayout.threadsValue.text = audioHelper.numThreads.toString()
                 audioHelper.initClassifier()
             }
         }
